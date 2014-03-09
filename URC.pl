@@ -41,9 +41,15 @@ for my $i (0..($num_cubes-1)) { # Read in all the cubes from the input file
   push @cube_list, \@cube;
 }
 
-@comp_cube_list = &Complement(@cube_list);
-
+say "";
+say "Input Boolean Function:";
 print Dumper @cube_list;
+
+my @comp_cube_list = &Complement(@cube_list);
+
+say "";
+say "Complemented Boolean Function:";
+print Dumper @comp_cube_list;
 
 sub Complement {
   my @F = @_;
@@ -58,20 +64,30 @@ sub Complement {
   } else {
     # Check if cube list contains the all dont-care cube
     my $dont_care_cube = 0;
-    for my @cube (@F) {
+    for my $cube_ref (@F) {
+      my @cube = @$cube_ref;
       if (@cube == @dc_cube) {
         $dont_care_cube = 1;
         last;
       }
     }
     if ($dont_care_cube) { # If the cube list has a dont care cube then the boolean function is of the form stuff + "1",
+      say "Cube list has the all dont-cares cube in it!";
       return @G;           # so return an empty cube list which represents a "0" which is the complement of "1"
     } elsif (@F == 1) {    # No dont-care cube and only one cube, use DeMorgan Laws to complement directly
       say "Cube list contains just one cube";
       my $cube_ref = $F[0];
       my @cube = @$cube_ref;
-      for my $cube_val (@cube)
+      for my $i (0..($num_vars-1)) {              # For each
+        if ($cube[$i] == 1 or $cube[$i] == 2) {   # non dont-care term in the cube "01" or "10"
+          my @comp_term = @dc_cube;               # Add a cube to the complement cube list
+          $comp_term[$i] = 3^$cube[$i];            # and complement that variable
+          push @G, \@comp_term;
+        }
+      }
+      return @G;
     } else {
       say "Shouldn't come here yet";
     }
+  }
 }
