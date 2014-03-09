@@ -113,11 +113,21 @@ sub Complement {
         }
       }
       # Check if binate exists and choose the most binate variable
-      my $binate_exists = 0;
-      my $most_binate;
-      my $binate_num = 0;
+      my @binate_sum;   # Sum of T + C
+      my @binate_diff;  # Difference of |T - C|
+      my @binate_list;  # List of variables that are binate from smallest to largest index
+      my @unate_list;   # List of variables that re unate form smallest to largest index
       for my $i (0..($num_vars-1)) {
-        if ($C[$i]
+        $binate_sum[$i] = $T[$i] + $C[$i];
+        if ($T[$i] > $C[$i]) {
+          $binate_diff[$i] = $T[$i] - $C[$i];
+        } else {
+          $binate_diff[$i] = $C[$i] - $T[$i];
+        }
+        if ($T[$i] > 0 && $C[$i] > 0) {
+          push @binate_list, $i;
+        }
+        
       
     }
   }
