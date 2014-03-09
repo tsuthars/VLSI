@@ -94,6 +94,31 @@ sub Complement {
       return @G;
     } else {
       say "Shouldn't come here yet";
+      # Check if there are any binate variables and keep track of how many times they occur
+      # in True and Complement form in the cubelist
+      my @T; # Keeps track of the number of times the variable appears in True form
+      my @C; # Keeps track of the number of times the variable appears in Complement for
+      for my $i (0..($num_vars-1)) { # They need to be initialized to 0
+        $T[$i] = 0;
+        $C[$i] = 0;
+      }
+      for my $cube_ref (@F) {
+        my @cube = @$cube_ref;
+        for my $i (0..($num_vars-1)) {
+          if ($cube[$i] == 1) { # Variable appears in True form
+            $T[$i]++;
+          } elsif ($cube[$i] == 2) { # Variable appears in Complement form
+            $C[$i]++;
+          }
+        }
+      }
+      # Check if binate exists and choose the most binate variable
+      my $binate_exists = 0;
+      my $most_binate;
+      my $binate_num = 0;
+      for my $i (0..($num_vars-1)) {
+        if ($C[$i]
+      
     }
   }
 }
