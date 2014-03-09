@@ -53,21 +53,27 @@ print Dumper @comp_cube_list;
 
 sub Complement {
   my @F = @_;
-
   my @G; # Complemented cube list (return value)
+
   # Check if F is simple enough to complement directly
   if (@F == 0) { # Empty cube list
-    say "Empty cube list";
+    say "Empty cube list!";
     my @cube = @dc_cube; # Empty cube list means a boolean function of "0"
     push @G, \@cube;     # whose complement is "1" represented by a dont-care cube
     return @G;
   } else {
     # Check if cube list contains the all dont-care cube
     my $dont_care_cube = 0;
-    for my $cube_ref (@F) {
+    for my $cube_ref (@F) { # Go through all cubes in the cube list
       my @cube = @$cube_ref;
-      if (@cube == @dc_cube) {
-        $dont_care_cube = 1;
+      $dont_care_cube = 1;       # Assume its an all dont cares cube
+      for my $cube_val (@cube) { # Go through the values in the cube
+        if ($cube_val != 3) {    # Found a non-dont-care value in this cube so skip to the next cube
+          $dont_care_cube = 0;
+          last;
+        }
+      }
+      if ($dont_care_cube) { # Found a dont care cube so stop checking furhter in the cube list
         last;
       }
     }
@@ -81,7 +87,7 @@ sub Complement {
       for my $i (0..($num_vars-1)) {              # For each
         if ($cube[$i] == 1 or $cube[$i] == 2) {   # non dont-care term in the cube "01" or "10"
           my @comp_term = @dc_cube;               # Add a cube to the complement cube list
-          $comp_term[$i] = 3^$cube[$i];            # and complement that variable
+          $comp_term[$i] = 3^$cube[$i];           # and complement that variable
           push @G, \@comp_term;
         }
       }
