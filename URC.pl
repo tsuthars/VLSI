@@ -97,7 +97,7 @@ sub Complement {
       # Check if there are any binate variables and keep track of how many times they occur
       # in True and Complement form in the cubelist
       my @T; # Keeps track of the number of times the variable appears in True form
-      my @C; # Keeps track of the number of times the variable appears in Complement for
+      my @C; # Keeps track of the number of times the variable appears in Complement form
       for my $i (0..($num_vars-1)) { # They need to be initialized to 0
         $T[$i] = 0;
         $C[$i] = 0;
@@ -112,23 +112,48 @@ sub Complement {
           }
         }
       }
-      # Check if binate exists and choose the most binate variable
-      my @binate_sum;   # Sum of T + C
-      my @binate_diff;  # Difference of |T - C|
-      my @binate_list;  # List of variables that are binate from smallest to largest index
-      my @unate_list;   # List of variables that re unate form smallest to largest index
+      # Compute the binate sum
+      my @binate_sum;       # Sum of T + C sorted from most to least
+      my @binate_sum_var;   # Variable index for the binate_sum array
       for my $i (0..($num_vars-1)) {
-        $binate_sum[$i] = $T[$i] + $C[$i];
-        if ($T[$i] > $C[$i]) {
-          $binate_diff[$i] = $T[$i] - $C[$i];
-        } else {
-          $binate_diff[$i] = $C[$i] - $T[$i];
-        }
+        my $sum;
+        $sum = $T[$i] + $C[$i];
         if ($T[$i] > 0 && $C[$i] > 0) {
-          push @binate_list, $i;
+          # Create the binate_sum array in sorted order
+          my $inserted = 0;
+          for my $j (@binate_list) {
+            if ($sum > $binate_list[$j])
+              shift @binate_sum, $sum;
+              shift @binate_sum_var, $i;
+              $inserted = 1;
+              last;
+            }
+          }
+          if (!$inserted) {
+            push @binate_sum, $sum;
+            push @binate_sum_var, $i;
+          }
         }
-        
-      
+      }
+      my @binate_diff;      # Difference of |T - C| sorted from least to most
+      my @binate_diff_var;  # Variable index for the binate_diff array
+        if ($T[$i] > $C[$i]) {
+          $diff = $T[$i] - $C[$i];
+        } else {
+          $diff = $C[$i] - $T[$i];
+        }
+
+      my $splitting_var; # Variable for splitting
+      if (@binate_list > 0) { # Binate exists
+        # Choose the most binate variable
+        my $max_binate_sum = 0;
+        my $most_binate_var;
+        for my $i (@binate_list) {
+          if ($binate_sum[$i] > $max_binate_sum) {
+            $max_binate_sum = $binate_sum[$i];
+            $most_binate_var = $i;
+          }
+        }
     }
   }
 }
