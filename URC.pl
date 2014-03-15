@@ -16,6 +16,7 @@ my $in_file  = $ARGV[0];
 my $out_file = $ARGV[1];
 
 open INFILE, "$in_file";
+open OUTFILE, ">$out_file";
 
 chomp(my $num_vars = <INFILE>);  # Number of variables in the boolean function x1, x2, x3, etc.
 chomp(my $num_cubes = <INFILE>); # Number of cubes in the function which is also the number of lines rmeianing in the input file
@@ -52,6 +53,33 @@ print Dumper @posCof;
 
 
 my @comp_cube_list = &Complement(@cube_list);
+
+# Output the complemented boolean function
+print OUTFILE "$num_vars\n";
+my $comp_num_cubes = @comp_cube_list;
+print OUTFILE "$comp_num_cubes\n";
+for my $cube_ref (@comp_cube_list) {
+  my @cube = @$cube_ref;
+  # Compute the number of cares (or non-dont-cares)
+  my $num_cares;
+  for my $cube_val (@cube) {
+    if ($cube_val != 3) {
+      $num_cares++;
+    }
+  }
+  # Write the cube out
+  print OUTFILE "$num_cares ";
+  for my $i (0..($num_vars-1)) {
+    if ($cube[$i] != 3) {
+      if ($cube[$i] == 1) { # Postive form of x
+        print OUTFILE $i+1, " ";
+      } elsif ($cube[$i] == 2) { # Negative form of x
+        print OUTFILE "-", $i+1, " ";
+      }
+    }
+  }
+  print OUTFILE "\n";
+}
 
 say "";
 say "Complemented Boolean Function:";
