@@ -181,3 +181,63 @@ sub Complement {
     }
   }
 }
+
+sub positiveCofactor {
+  my @F = @_;
+  my $x = shift @F;
+  my @G; # Positive Cofactor cube
+
+  for my $cube_ref (@F) {
+    my @cube = @$cube_ref;
+    if ($cube[$x] == 1) { # If positive make it don't care
+      $cube[$x] = 3;
+      push @G, \@cube;
+    } elsif ($cube[$x] == 3) { # Doesn't have x in it so leave cube alone
+      push @G, \@cube;
+    } # Otherwise remove the cube from the cube list
+  }
+  return @G;
+}
+
+sub negativeCofactor {
+  my @F = @_;
+  my $x = shift @F;
+  my @G; # Negative Cofactor cube
+
+  for my $cube_ref (@F) {
+    my @cube = @$cube_ref;
+    if ($cube[$x] == 2) { # If negative make it don't care
+      $cube[$x] = 3;
+      push @G, \@cube;
+    } elsif ($cube[$x] == 3) { # Doesn't have x in it so leave cube alone
+      push @G, \@cube;
+    } # Otherwise remove the cube from the cube list
+  }
+  return @G;
+}
+
+sub ANDxp {
+  my @F = @_;
+  my $x = shift @F;
+  my @G; # x AND F
+
+  for my $cube_ref (@F) {
+    my @cube = @$cube_ref;
+    $cube[$x] = 1; # Just add the variable back in positive form
+    push @G, \@cube;
+  }
+  return @G;
+}
+
+sub ANDxn {
+  my @F = @_;
+  my $x = shift @F;
+  my @G; # x AND F
+
+  for my $cube_ref (@F) {
+    my @cube = @$cube_ref;
+    $cube[$x] = 2; # Just add the variable back in negative form
+    push @G, \@cube;
+  }
+  return @G;
+}
