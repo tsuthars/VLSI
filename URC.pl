@@ -45,6 +45,12 @@ say "";
 say "Input Boolean Function:";
 print Dumper @cube_list;
 
+my @posCof = &positiveCofactor(0, @cube_list);
+say "";
+say "Positive Cofactor:";
+print Dumper @posCof;
+
+
 my @comp_cube_list = &Complement(@cube_list);
 
 say "";
@@ -179,6 +185,11 @@ sub Complement {
         $splitting_var = $unate_sum_var[0];
       }
     }
+    my @P = Complement(positiveCofactor($splitting_var, @F));
+    my @N = Complement(negativeCofactor($splitting_var, @F));
+    my @P = ANDxp($splitting_var, @P); 
+    my @N = ANDxn($splitting_var, @N); 
+    return(@P, @N);
   }
 }
 
