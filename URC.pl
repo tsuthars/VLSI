@@ -129,9 +129,9 @@ sub Complement {
         $sum = $T[$i] + $C[$i];
         if ($T[$i] > 0 && $C[$i] > 0) {
           # Create the binate_sum array
-          if (@binate_sum == 0 || $sum > $binate_sum[0])
+          if (@binate_sum == 0 || $sum > $binate_sum[0]) {
 	    # Throw away the existing array and start again
-            @binate_sum     = ($sum);
+            @binate_sum = ($sum);
 	    @binate_sum_var = ($i);
           } elsif ($sum == $binate_sum[0]) {
 	    # Add to list at the end
@@ -144,6 +144,7 @@ sub Complement {
         my @binate_diff;      # Difference of |T - C| sorted from least to most
         my @binate_diff_var;  # Variable index for the binate_diff array
         for my $i (@binate_sum_var) {
+          my $diff;
           if ($T[$i] > $C[$i]) {
             $diff = $T[$i] - $C[$i];
           } else {
@@ -171,7 +172,7 @@ sub Complement {
           my $sum;
           $sum = $T[$i] + $C[$i];
           # Create the unate_sum array
-          if (@unate_sum == 0 || $sum > $unate_sum[0])
+          if (@unate_sum == 0 || $sum > $unate_sum[0]) {
 	    # Throw away the existing array and start again
             @unate_sum     = ($sum);
 	    @unate_sum_var = ($i);
@@ -184,12 +185,12 @@ sub Complement {
 	# Just choose the first one in the list since it has the smallest index as well
         $splitting_var = $unate_sum_var[0];
       }
+      my @P = Complement(positiveCofactor($splitting_var, @F));
+      my @N = Complement(negativeCofactor($splitting_var, @F));
+      my @P = ANDxp($splitting_var, @P); 
+      my @N = ANDxn($splitting_var, @N); 
+      return(@P, @N);
     }
-    my @P = Complement(positiveCofactor($splitting_var, @F));
-    my @N = Complement(negativeCofactor($splitting_var, @F));
-    my @P = ANDxp($splitting_var, @P); 
-    my @N = ANDxn($splitting_var, @N); 
-    return(@P, @N);
   }
 }
 
