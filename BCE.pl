@@ -14,11 +14,16 @@ my $cmd_file = $ARGV[0];
 open CMDFILE, "$cmd_file";
 
 my @fn_list;
-while (my $cmd_line = <CMDFILE>) {
+
+my $num_vars;
+my @dc_cube;  # Create a dont-care cube list with appropriate number of variables for re-use
+
+my @cmd_lines = <CMDFILE>;
+for my $cmd_line (@cmd_lines) {
   chomp($cmd_line);
-  @cmds = split /s+/, $cmd_line;
+  my @cmds = split /\s+/, $cmd_line;
   if ($cmds[0] eq "r") {
-    my @cube_list_in = $read_fn($cmds[1]);
+    my @cube_list_in = &read_fn($cmds[1]);
     $fn_list[$cmds[1]] = \@cube_list_in;
   } elsif ($cmds[0] eq "!") {
     my $cube_in_ref   = $fn_list[$cmds[2]];
@@ -32,7 +37,7 @@ while (my $cmd_line = <CMDFILE>) {
     my @cube_list_in2  = @$cube_in2_ref;
     my @cube_list_out = (@cube_list_in1, @cube_list_in2);
     $fn_list[$cmds[1]] = \@cube_list_out;
-  } elsif ($cmds[1] eq "&") {
+  } elsif ($cmds[0] eq "&") {
     my $cube_in1_ref   = $fn_list[$cmds[2]];
     my @cube_list_in1  = @$cube_in1_ref;
     my $cube_in2_ref   = $fn_list[$cmds[3]];
@@ -41,19 +46,19 @@ while (my $cmd_line = <CMDFILE>) {
     # Compute AND using DeMorgan's laws
     my @cube_list_out = Complement(Complement(@cube_list_in1), Complement(@cube_list_in2));
     $fn_list[$cmds[1]] = \@cube_list_out;
+  } elsif ($cmds[0] eq "p") {
+    my $cube_out_ref   = $fn_list[$cmds[1]];
+    my @cube_list_out  = @$cube_out_ref;
+    &write_fn($cmds[1], @cube_list_out);
+  } elsif ($cmds[0] eq "q") {
+    last;
   }
 }
+close(CMDFILE);
 
-say "";
-say "Input Boolean Function:";
-print Dumper @cube_list;
-
-my @comp_cube_list = &Complement(@cube_list);
-
-
-say "";
-say "Complemented Boolean Function:";
-print Dumper @comp_cube_list;
+#say "";
+#say "Complemented Boolean Function:";
+#print Dumper @comp_cube_list;
 
 sub read_fn {
   my $fn = shift;
@@ -61,15 +66,16 @@ sub read_fn {
 
   open INFILE, "$in_file";
 
-  chomp(my $num_vars = <INFILE>);  # Number of variables in the boolean function x1, x2, x3, etc.
+  chomp($num_vars = <INFILE>);     # Number of variables in the boolean function x1, x2, x3, etc. (Assuming all functions read have the same number of variables)
   chomp(my $num_cubes = <INFILE>); # Number of cubes in the function which is also the number of lines rmeianing in the input file
   
   my @cube_list; # Input cube list
-  my @dc_cube;  # Create a dont-care cube list with appropriate number of variables for re-use
+  
+  # Create the dc_cube
   for my $i (0..($num_vars-1)) {
     push @dc_cube, 3;  # 3 or "11" represents dont-care value
   }
-  
+
   for my $i (0..($num_cubes-1)) { # Read in all the cubes from the input file
     my $cube_line = <INFILE>;
     my @cube_vals = split /\s+/, $cube_line;
@@ -84,21 +90,24 @@ sub read_fn {
     }
     push @cube_list, \@cube;
   }
-  return @cube_list;
+  #print Dumper @cube_list;
+  close(INFILE);
+  return (@cube_list);
 }
 
 sub write_fn {
   my @cube_list = @_;
   my $fn = shift @cube_list;
+  #print Dumper @cube_list;
 
-  my $out_file = "$fn" , ".pcn";
+  my $out_file = "$fn" . ".pcn";
   open OUTFILE, ">$out_file";
 
   # Output the complemented boolean function
   print OUTFILE "$num_vars\n";
   my $comp_num_cubes = @cube_list;
   print OUTFILE "$comp_num_cubes\n";
-  for my $cube_ref (@comp_cube_list) {
+  for my $cube_ref (@cube_list) {
     my @cube = @$cube_ref;
     # Compute the number of cares (or non-dont-cares)
     my $num_cares;
@@ -120,6 +129,7 @@ sub write_fn {
     }
     print OUTFILE "\n";
   }
+  close(OUTFILE);
 }
 
 sub Complement {
@@ -252,8 +262,8 @@ sub Complement {
       }
       my @P = Complement(positiveCofactor($splitting_var, @F));
       my @N = Complement(negativeCofactor($splitting_var, @F));
-      my @P = ANDxp($splitting_var, @P); 
-      my @N = ANDxn($splitting_var, @N); 
+      @P = ANDxp($splitting_var, @P); 
+      @N = ANDxn($splitting_var, @N); 
       return(@P, @N);
     }
   }
