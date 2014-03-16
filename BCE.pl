@@ -23,6 +23,8 @@ for my $cmd_line (@cmd_lines) {
   chomp($cmd_line);
   my @cmds = split /\s+/, $cmd_line;
   if ($cmds[0] eq "r") {
+    say "$cmds[0]";
+    say "$cmds[1]";
     my @cube_list_in = &read_fn($cmds[1]);
     $fn_list[$cmds[1]] = \@cube_list_in;
   } elsif ($cmds[0] eq "!") {
@@ -73,7 +75,7 @@ sub read_fn {
   
   # Create the dc_cube
   for my $i (0..($num_vars-1)) {
-    push @dc_cube, 3;  # 3 or "11" represents dont-care value
+    $dc_cube[$i] = 3;  # 3 or "11" represents dont-care value
   }
 
   for my $i (0..($num_cubes-1)) { # Read in all the cubes from the input file
@@ -90,7 +92,7 @@ sub read_fn {
     }
     push @cube_list, \@cube;
   }
-  #print Dumper @cube_list;
+  print Dumper @cube_list;
   close(INFILE);
   return (@cube_list);
 }
